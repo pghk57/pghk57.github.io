@@ -60,28 +60,29 @@
 
       document.getElementById("run").onclick = () => {
         const out = document.getElementById("out");
-        out.textContent = "計算中…";
+        out.textContent = "calculating…";
 
         // 入力取得
         const nums = document.getElementById("nums")
           .value.trim().split(/\s+/).map(Number);
         const target = Number(document.getElementById("target").value);
+        out.textContent = "received input";
 
         if (nums.length === 0 || Number.isNaN(target)) {
           out.textContent = "入力が正しくありません";
           return;
         }
 
-        out.textContext = "メモリ確保中..."
+        out.textContext = "getting memory..."
         // Wasmメモリに配列を確保
         const ptr = Module._malloc(nums.length * 4);
         Module.HEAP32.set(nums, ptr / 4);
 
-        out.textContext = "呼び出し中..."
+        out.textContext = "calling funciton..."
         // C++関数呼び出し
         const res = solve(nums.length, target, ptr);
 
-        out.textContext = "計算終了"
+        out.textContext = "completed calculation"
         // 後始末
         Module._free(ptr);
 
