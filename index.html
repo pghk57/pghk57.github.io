@@ -72,6 +72,7 @@
           return;
         }
 
+        out.textContext = "メモリ確保中..."
         // Wasmメモリに配列を確保
         const ptr = Module._malloc(nums.length * 4);
         Module.HEAP32.set(nums, ptr / 4);
