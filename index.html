@@ -78,6 +78,8 @@
           return;
         }
 
+        const t0 = performance.now();
+
         out.textContent = "getting memory..."
         // Wasmメモリに配列を確保
         const ptr = Module._malloc(nums.length * Int32Array.BYTES_PER_ELEMENT);
@@ -91,8 +93,10 @@
         // 後始末
         Module._free(ptr);
 
+        const t1 = performance.now();
+
         // 結果表示
-        out.textContent = res;
+        out.textContent = res + "\n\n" + `Time: ${(t1 - t0).toFixed(2)} ms`;
       };
     };
   </script>
