@@ -75,7 +75,7 @@
 
         out.textContent = "getting memory..."
         // Wasmメモリに配列を確保
-        const ptr = Module._malloc(nums.length * 4);
+        const ptr = Module._malloc(nums.length * Int32Array.BYTES_PER_ELEMENT);
         Module.HEAP32.set(nums, ptr / 4);
 
         out.textContent = "calling funciton..."
