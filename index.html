@@ -73,16 +73,16 @@
           return;
         }
 
-        out.textContext = "getting memory..."
+        out.textContent = "getting memory..."
         // Wasmメモリに配列を確保
         const ptr = Module._malloc(nums.length * 4);
         Module.HEAP32.set(nums, ptr / 4);
 
-        out.textContext = "calling funciton..."
+        out.textContent = "calling funciton..."
         // C++関数呼び出し
         const res = solve(nums.length, target, ptr);
 
-        out.textContext = "completed calculation"
+        out.textContent = "completed calculation"
         // 後始末
         Module._free(ptr);
 
