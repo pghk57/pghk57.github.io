@@ -76,9 +76,11 @@
         const ptr = Module._malloc(nums.length * 4);
         Module.HEAP32.set(nums, ptr / 4);
 
+        out.textContext = "呼び出し中..."
         // C++関数呼び出し
         const res = solve(nums.length, target, ptr);
 
+        out.textContext = "計算終了"
         // 後始末
         Module._free(ptr);
 
