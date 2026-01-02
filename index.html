@@ -55,7 +55,9 @@
     <input id="target" placeholder="例: 10">
   </p>
 
-  <button id="run">solve</button>
+  <button id="enumerate">enumerate</button>
+  <button id="count">count</button>
+
 
   <pre id="out">ここに結果が表示されます</pre>
 
@@ -65,49 +67,47 @@
   <!-- ロジック部分 -->
   <script>
     Module.onRuntimeInitialized = () => {
-
-      // C++関数 solve を JavaScript関数として包む
-      const solve = Module.cwrap(
-        'solve',     // C++側の関数名
-        'string',    // 戻り値の型
-        ['number', 'number', 'number'] // (N, target, int*)
+      
+      const solveEnumerate = Module.cwrap(
+        'solve_enumerate',
+        'string',
+        ['number','number','number']
+      );
+      
+      const solveCount = Module.cwrap(
+        'solve_count',
+        'number',
+        ['number','number','number']
       );
 
-      document.getElementById("run").onclick = () => {
-        const out = document.getElementById("out");
-        out.textContent = "calculating…";
+    function allocArray(nums) {
+      const ptr = Module._malloc(nums.length * 4);
+      Module.HEAP32.set(nums, ptr >> 2);
+      return ptr;
+    }
 
-        // 入力取得
-        const nums = document.getElementById("nums")
-          .value.trim().split(/\s+/).map(Number);
-        const target = Number(document.getElementById("target").value);
-        out.textContent = "received input";
+        document.getElementById("enumerate").onclick = () => {
+          const t0 = performance.now();
+        
+          const ptr = allocArray(nums);
+          const res = solveEnumerate(nums.length, target, ptr);
+          Module._free(ptr);
+        
+          const t1 = performance.now();
+          out.textContent = res + `\nTime: ${(t1-t0).toFixed(2)} ms`;
+        };
 
-        if (nums.length === 0 || Number.isNaN(target)) {
-          out.textContent = "入力が正しくありません";
-          return;
-        }
-
-        const t0 = performance.now();
-
-        out.textContent = "getting memory..."
-        // Wasmメモリに配列を確保
-        const ptr = Module._malloc(nums.length * Int32Array.BYTES_PER_ELEMENT);
-        Module.HEAP32.set(nums, ptr / 4);
-
-        out.textContent = "calling funciton..."
-        // C++関数呼び出し
-        const res = solve(nums.length, target, ptr);
-
-        out.textContent = "completed calculation"
-        // 後始末
-        Module._free(ptr);
-
-        const t1 = performance.now();
-
-        // 結果表示
-        out.textContent = res + "\n\n" + `Time: ${(t1 - t0).toFixed(2)} ms`;
-      };
+        document.getElementById("count").onclick = () => {
+          const t0 = performance.now();
+        
+          const ptr = allocArray(nums);
+          const res = solveCount(nums.length, target, ptr);
+          Module._free(ptr);
+        
+          const t1 = performance.now();
+          out.textContent =
+            `count = ${res}\nTime: ${(t1-t0).toFixed(2)} ms`;
+        };
     };
   </script>
 </body>
