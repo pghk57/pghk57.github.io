@@ -61,54 +61,64 @@
 
   <pre id="out">ここに結果が表示されます</pre>
 
-  <!-- Emscriptenが生成したJS（中でWasmを読み込む） -->
   <script src="tenpuzzle.js"></script>
 
-  <!-- ロジック部分 -->
   <script>
-    Module.onRuntimeInitialized = () => {
-      
+    let Module;
+  
+    createModule().then(m => {
+      Module = m;
+  
       const solveEnumerate = Module.cwrap(
         'solve_enumerate',
         'string',
         ['number','number','number']
       );
-      
+  
       const solveCount = Module.cwrap(
         'solve_count',
         'number',
         ['number','number','number']
       );
-
-    function allocArray(nums) {
-      const ptr = Module._malloc(nums.length * 4);
-      Module.HEAP32.set(nums, ptr >> 2);
-      return ptr;
-    }
-
-        document.getElementById("enumerate").onclick = () => {
-          const t0 = performance.now();
-        
-          const ptr = allocArray(nums);
-          const res = solveEnumerate(nums.length, target, ptr);
-          Module._free(ptr);
-        
-          const t1 = performance.now();
-          out.textContent = res + `\nTime: ${(t1-t0).toFixed(2)} ms`;
-        };
-
-        document.getElementById("count").onclick = () => {
-          const t0 = performance.now();
-        
-          const ptr = allocArray(nums);
-          const res = solveCount(nums.length, target, ptr);
-          Module._free(ptr);
-        
-          const t1 = performance.now();
-          out.textContent =
-            `count = ${res}\nTime: ${(t1-t0).toFixed(2)} ms`;
-        };
-    };
+  
+      function allocArray(nums) {
+        const ptr = Module._malloc(nums.length * 4);
+        Module.HEAP32.set(nums, ptr >> 2);
+        return ptr;
+      }
+  
+      document.getElementById("enumerate").onclick = () => {
+        const nums = document.getElementById("nums").value
+          .trim().split(/\s+/).map(Number);
+        const target = Number(document.getElementById("target").value);
+        const out = document.getElementById("out");
+  
+        const t0 = performance.now();
+        const ptr = allocArray(nums);
+        const res = solveEnumerate(nums.length, target, ptr);
+        Module._free(ptr);
+        const t1 = performance.now();
+  
+        out.textContent = res + `\nTime: ${(t1-t0).toFixed(2)} ms`;
+      };
+  
+      document.getElementById("count").onclick = () => {
+        const nums = document.getElementById("nums").value
+          .trim().split(/\s+/).map(Number);
+        const target = Number(document.getElementById("target").value);
+        const out = document.getElementById("out");
+  
+        const t0 = performance.now();
+        const ptr = allocArray(nums);
+        const res = solveCount(nums.length, target, ptr);
+        Module._free(ptr);
+        const t1 = performance.now();
+  
+        out.textContent =
+          `count = ${res}\nTime: ${(t1-t0).toFixed(2)} ms`;
+      };
+    });
   </script>
+
 </body>
 </html>
